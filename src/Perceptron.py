@@ -16,8 +16,8 @@ if __name__ == "__main__":
     #Adding an argument for stable mode and an argument for defined mode.
     group.add_argument("-ts", "--train_until_stable", help="Train the perceptron until the weight vector remains stable. Enter the desired number of iterations for weight vector to remain unchanged after the command.", type=int)
     group.add_argument("-tf", "--train_for", help="Train the perceptron for a manually defined number of iterations. Enter the desired number of iterations after the command.", type=int)
-    #Adding an optional argument for plotting the results as a graph.
-    parser.add_argument("-p", "--plot", help="Plot the results of the perceptron test on the graph. Must be used in conjunction with a training mode.", action='store_true')
+    group.add_argument("-p", "--plot", help="Plot the results of the perceptron test on the graph. Must be used in conjunction with a training mode.", type=int)
+
 
 
     args = parser.parse_args()
@@ -62,14 +62,10 @@ if __name__ == "__main__":
         #Calling a function to test the perceptron, followed by a function to print the results.
         test_results = Process.Perceptron.test(test_data)
         Process.Results.print_results(test_results)
-        #If the optional plot command is input on the command line:
-        if(args.plot):
-            #A function is called to graph the results.
-            Process.Results.graph_results(Process.Perceptron.iterations, Process.Perceptron.train_error_rate, "Graph of Train Error Rate", "Number of misclassifications", "Number of Iterations")
         #The time that the perceptron took is printed to the console.
         print "\n(" + str(round((time.time() - start_time), 1)) + " seconds)"
 
-    #If the user enters train for {} iterations:
+    #If the user enters train for n iterations:
     if(args.train_for):
         #Print the mode to the console.
         print "\nManually defined mode has been selected (" + str(args.train_for) + " iterations)."
@@ -93,7 +89,7 @@ if __name__ == "__main__":
     
         #Calling a function to train the perceptron. The second argument refers to how many iterations
         #of training will occur, and comes from the command line input.
-        Process.Perceptron.train_defined(training_data, args.train_for)
+        Process.Perceptron.train_defined(training_data, args.train_for, False)
     
         #Generating the test data by creating vectors from the positive and negative test files.
         print "\nGenerating test data..."
@@ -105,12 +101,66 @@ if __name__ == "__main__":
         #Calling a function to test the perceptron, followed by a function to print the results.
         test_results = Process.Perceptron.test(test_data)
         Process.Results.print_results(test_results)
-        #If the optional plot command is input on the command line:
-        if(args.plot):
-            #A function is called to plot a graph of the results.
-            Process.Results.graph_results(Process.Perceptron.iterations, Process.Perceptron.train_error_rate, "Graph of Train Error Rate", "Number of Iterations", "Number of misclassifications")
         #The time that the perceptron took is printed to the console.
         print "\n(" + str(round((time.time() - start_time), 1)) + " seconds)"
+
+    if(args.plot):
+        #Print the mode to the console.
+        print "\nPlot mode has been selected (" + str(args.plot) + " iterations)."
+    
+        #Calling the generate_feature_space function with the training and testing files to produce a feature space.
+        print "\nGenerating feature space..."
+        feature_space = Process.Feature.generate_feature_space("train.positive", "train.negative", "test.positive", "test.negative")
+        #Calculating the size of the feature spac.
+        feature_space_size = len(feature_space)
+        print "Done."
+        #Passing the feature space and feature space size to the Perceptron class in the Process.py file to be stored as class variables.
+        Process.Perceptron.feature_space = feature_space
+        Process.Perceptron.feature_space_size = feature_space_size
+    
+        #Generating the training data by creating vectors from the positive and negative training files.
+        print "\nGenerating training data..."
+        #The second argument is the label that will be given to the vectors.
+        training_data = Process.Perceptron.generate_vectors("train.positive", 1)
+        training_data.extend(Process.Perceptron.generate_vectors("train.negative", -1))
+        print "Done."
+    
+        #Instantiating an array to hold the success % of each number of iterations.
+        test_success = []
+        #iterating up to the given number.
+        for i in xrange(1, (args.plot + 1)):   
+            test_results = []
+            #Calling a function to train the perceptron. The second argument refers to how many iterations
+            #of training will occur, and comes from the command line input.
+            if(i == args.plot):
+                plotFlag = True
+            else:
+                plotFlag = False;
+                
+            Process.Perceptron.train_defined(training_data, i, plotFlag)
+        
+            #Generating the test data by creating vectors from the positive and negative test files.
+            print "\nGenerating test data..."
+            #The second argument is the label that will be given to the vectors.
+            test_data = Process.Perceptron.generate_vectors("test.positive", 1)
+            test_data.extend(Process.Perceptron.generate_vectors("test.negative", -1))
+            print "Done."
+        
+            #Calling a function to test the perceptron, followed by a function to count the results.
+            test_results = Process.Perceptron.test(test_data)
+            print "\nSaving percentage of successful classifications..."
+            test_success.append(Process.Results.count_results(test_results))
+            Process.Perceptron.weight_vector = []
+            print "Done."
+
+        #Final plotting of all results.
+        Process.Results.graph_results(Process.Perceptron.iterations, Process.Perceptron.train_error_rate, test_success, "Graph of Train Error Rate", "Number of Iterations", "Successfull classifcations (%)")
+
+
+        #The time that the perceptron took is printed to the console.
+        print "\n(" + str(round((time.time() - start_time), 1)) + " seconds)"
+
+
 
     
     

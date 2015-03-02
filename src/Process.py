@@ -136,18 +136,12 @@ class Perceptron:
                 if((activation * training_data[j][1]) <= 0):
                     #The misclassification counter is incremented.
                     misclassification_counter += 1
-                    for k in xrange(0, Perceptron.feature_space_size):
-                        #The weight values are altered by adding the product of the word value and the review label.
-                        weights[k] += (training_data[j][1] * training_data[j][0][k])
+                    #The weight values are altered by adding the product of the word value and the review label.
+                    weights += training_data[j][1] * training_data[j][0]
                     #The bias is altered by adding the review label.
                     bias += training_data[j][1]
             #The weight vector is added into another list to be averaged later.
             iterated_weights.append(weights)
-            #The missclassification counter is added into the train error rate list for plotting. 
-            Perceptron.train_error_rate.append(misclassification_counter)
-            #The loop counter is added into the iterations list for plotting a graph later.
-            Perceptron.iterations.append(loop_counter)
-            #The loop counter is incremented.
 
             loop_counter += 1
         print "Weight vector has stabilized, training complete."
@@ -174,7 +168,7 @@ class Perceptron:
     #Defining a function to train the perceptron for a defined number of iterations. Following this, the function returns 
     #the weight vector and bias value obtained after the number of iterations.
     @staticmethod
-    def train_defined(training_data, iterations):
+    def train_defined(training_data, iterations, plotFlag):
             
         #Storing the length of the training data.
         training_data_length = len(training_data)
@@ -188,17 +182,27 @@ class Perceptron:
         #Instantiating the counters.
         misclassification_counter = 0
 
-        print "\nBeginning training sequence (" + str(iterations) + " iterations)..."
+        print "\nBeginning training sequence (" + str(iterations) + " iteration(s))..."
         #While the stability counter is less than 3,
         for i in xrange(0, iterations):      
             #If it is the first iteration:
             if(i == 0):
                 #This statement is printed.
                 print "Iteration " + str(i + 1) + "."
+                if(plotFlag):
+                    print "Adding 0"
+                    Perceptron.train_error_rate.append(0)
+                    Perceptron.iterations.append(i)
             #If it is any other iteration:
             else:
                 #This slightly different statement is printed for the second loop iteration.
                 print "Iteration " + str(i + 1) + ". (" + str(misclassification_counter) + " misclassifications on previous iteration.)"
+                if(plotFlag):
+                    #The missclassification counter is added into the train error rate list for plotting. 
+                    print "Adding " + str(((float(training_data_length) - float(misclassification_counter)) / float(training_data_length)) * float(100))
+                    Perceptron.train_error_rate.append(((float(training_data_length) - float(misclassification_counter)) / float(training_data_length)) * float(100))
+                    #The loop counter is added into the iterations list for plotting a graph later.
+                    Perceptron.iterations.append(i)
                 #The misclassification counter is reset for the coming iteration:
                 misclassification_counter = 0
             #The training data is shuffled.
@@ -211,18 +215,13 @@ class Perceptron:
                 if((activation * training_data[j][1]) <= 0):
                     #The misclassification counter is incremented.
                     misclassification_counter += 1
-                    for k in xrange(0, Perceptron.feature_space_size):
-                        #The weight values are altered by adding the product of the word value and the review label.
-                        weights[k] += (training_data[j][1] * training_data[j][0][k])
+                    #The weight values are altered by adding the product of the word value and the review label.
+                    weights += training_data[j][1] * training_data[j][0]
                     #The bias is altered by adding the review label.
-                    bias += training_data[j][1]
+                    bias += training_data[j][1]                    
             #The weight vector is added into another list to be averaged later.
             iterated_weights.append(weights)
-            #The missclassification counter is added into the train error rate list for plotting. 
-            Perceptron.train_error_rate.append(misclassification_counter)
-            #The loop counter is added into the iterations list for plotting a graph later.
-            Perceptron.iterations.append(i)
-            #The loop counter is incremented.
+                
         print "Training complete."
         
         #Iterating over the number of training iterations:
@@ -250,17 +249,19 @@ class Perceptron:
 
         #Saving the length of the test data and intantiating the test_results list.
         test_data_length = len(test_data)
-        test_results = [[0 for x in xrange(2)]for y in xrange(test_data_length)]
+        test_results = []
+        for i in xrange(0, test_data_length):
+            test_results.append([])
 
         print "\nAnalyzing test data..."
         #Iterating over the length of the test data.
-        for i in xrange(0, test_data_length):
+        for j in xrange(0, test_data_length):
             #Calculating the activation by taking the dot product of the trained weight vector with each review vector and adding the bias.
-            activation = (numpy.dot(Perceptron.weight_vector, test_data[i][0])) + Perceptron.bias
+            activation = numpy.dot(Perceptron.weight_vector, test_data[j][0]) + Perceptron.bias
             #Saving the sign of the activation as the first element in the results list.
-            test_results[i][0] = numpy.sign(activation)
+            test_results[j].append(numpy.sign(activation))
             #Saving the actual label of the review as the second element in the results list.
-            test_results[i][1] = test_data[i][1]
+            test_results[j].append(test_data[j][1])
         print "Done."
         #Returning the results list.
         return test_results
@@ -310,12 +311,52 @@ class Results:
         print "The perceptron correctly predicted " + str(round(neg_correct_percentage, 1)) + "% of negative test reviews."
         print "The perceptron correctly predicted " + str(round(tot_correct_percentage, 1)) + "% of all test reviews."
 
+    #Defining a function to count the results of the perceptron.
+    @staticmethod
+    def count_results(test_results):
+    
+        #Initializing counters and the length of the test results list.
+        test_results_length = len(test_results)
+        pos_counter = 0
+        neg_counter = 0
+        pos_correct_counter = 0
+        neg_correct_counter = 0
+
+        #Iterating over the length of the test results list.
+        for i in xrange (0, test_results_length):
+            #If the current element is a positive test review, and the predicted label matches:
+            if((test_results[i][1] == 1) and (test_results[i][1] == test_results[i][0])):
+                #The total positive counter is incremented, and the correct counter is incremented.
+                pos_counter += 1
+                pos_correct_counter += 1
+            #If the current element is a positive test review but the predicted label does not match:
+            elif((test_results[i][1] == 1) and (test_results[i][1] != test_results[i][0])):
+                #Only the total positive counter is incremented.
+                pos_counter += 1
+            #If the current element is a negative test review and the predictd label matches:
+            elif((test_results[i][1] == -1) and (test_results[i][1] == test_results[i][0])):
+                #The total negative counter is incremented, and the correct counter is incremented.
+                neg_counter += 1
+                neg_correct_counter += 1
+            #If the current element is a negative test review but the predicted label does not match:
+            elif((test_results[i][1] == -1) and (test_results[i][1] != test_results[i][0])):
+                #Only the negative counter is incremented.
+                neg_counter += 1
+
+        #The percentage correct is calculated.
+        tot_correct_percentage = (float(pos_correct_counter + neg_correct_counter) * 100) / (float(pos_counter + neg_counter))
+        
+        return tot_correct_percentage
+
     #Defining a method to print the results on a grap.
     @staticmethod
-    def graph_results(xaxis, yaxis, title, xlabel, ylabel):
+    def graph_results(xaxis, yaxis, yaxis2, title, xlabel, ylabel):
         #Plotting datasets onto the xaxis and y-axis.
+        print xaxis
+        print yaxis
+        print yaxis2
         print "\nBuilding graph..."
-        graph.plot(xaxis, yaxis)
+        graph.plot(list(xaxis), list(yaxis), list(xaxis), list(yaxis2)) 
         graph.title(title)
         graph.xlabel(xlabel)
         graph.ylabel(ylabel)
