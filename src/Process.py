@@ -108,14 +108,8 @@ class Perceptron:
         print "Training will finish when the weight vector remains stable (unchanged) for " + str(stability) + " iteration(s)."
         #While the stability counter is less than 3,
         while(stability_counter < stability):      
-            #If it is the first iteration:
-            if(loop_counter == 0):
-                #This statement is printed.
-                print "Iteration " + str(loop_counter + 1) + "."
-            #If it is any other iteration:
-            else:
-                #This slightly different statement is printed for the second loop iteration.
-                print "Iteration " + str(loop_counter + 1) + ". (" + str(misclassification_counter) + " misclassifications on previous iteration.)"
+            print "Iteration " + str(loop_counter + 1) + "."
+            if(loop_counter != 0):
                 #If no misclassifications were made on the previous iteration:
                 if(misclassification_counter == 0):
                     #The stability counter is incremented.
@@ -142,8 +136,9 @@ class Perceptron:
                     bias += training_data[j][1]
             #The weight vector is added into another list to be averaged later.
             iterated_weights.append(weights)
-
+            #Increasing the loop counter.
             loop_counter += 1
+            print str(misclassification_counter) + " misclassifications."
         print "Weight vector has stabilized, training complete."
         
         #Iterating over the number of training iterations:
@@ -184,22 +179,20 @@ class Perceptron:
 
         print "\nBeginning training sequence (" + str(iterations) + " iteration(s))..."
         #While the stability counter is less than 3,
-        for i in xrange(0, iterations):      
+        for i in xrange(0, iterations):   
+            print "Iteration " + str(i + 1) + "."   
             #If it is the first iteration:
             if(i == 0):
-                #This statement is printed.
-                print "Iteration " + str(i + 1) + "."
+                #If the plotFlag is true:
                 if(plotFlag):
-                    print "Adding 0"
+                    #Append the train error rate and number of iterations to their corresponding arrays.
                     Perceptron.train_error_rate.append(0)
                     Perceptron.iterations.append(i)
             #If it is any other iteration:
             else:
-                #This slightly different statement is printed for the second loop iteration.
-                print "Iteration " + str(i + 1) + ". (" + str(misclassification_counter) + " misclassifications on previous iteration.)"
+                #If the plotFlag is true
                 if(plotFlag):
                     #The missclassification counter is added into the train error rate list for plotting. 
-                    print "Adding " + str(((float(training_data_length) - float(misclassification_counter)) / float(training_data_length)) * float(100))
                     Perceptron.train_error_rate.append(((float(training_data_length) - float(misclassification_counter)) / float(training_data_length)) * float(100))
                     #The loop counter is added into the iterations list for plotting a graph later.
                     Perceptron.iterations.append(i)
@@ -221,6 +214,7 @@ class Perceptron:
                     bias += training_data[j][1]                    
             #The weight vector is added into another list to be averaged later.
             iterated_weights.append(weights)
+            print str(misclassification_counter) + " misclassifications."
                 
         print "Training complete."
         
@@ -352,9 +346,6 @@ class Results:
     @staticmethod
     def graph_results(xaxis, yaxis, yaxis2, title, xlabel, ylabel):
         #Plotting datasets onto the xaxis and y-axis.
-        print xaxis
-        print yaxis
-        print yaxis2
         print "\nBuilding graph..."
         graph.plot(list(xaxis), list(yaxis), list(xaxis), list(yaxis2)) 
         graph.title(title)

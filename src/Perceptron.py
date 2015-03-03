@@ -154,7 +154,7 @@ if __name__ == "__main__":
             print "Done."
 
         #Final plotting of all results.
-        Process.Results.graph_results(Process.Perceptron.iterations, Process.Perceptron.train_error_rate, test_success, "Graph of Train Error Rate", "Number of Iterations", "Successfull classifcations (%)")
+        Process.Results.graph_results(Process.Perceptron.iterations, Process.Perceptron.train_error_rate, test_success, "Graph of Train Success Rate (blue) and test success rate(green)", "Number of Iterations", "Successfull classifcations (%)")
 
 
         #The time that the perceptron took is printed to the console.
