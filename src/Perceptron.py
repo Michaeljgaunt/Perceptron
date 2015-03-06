@@ -148,13 +148,13 @@ if __name__ == "__main__":
         
             #Calling a function to test the perceptron, followed by a function to count the results.
             test_results = Process.Perceptron.test(test_data)
-            print "\nSaving percentage of successful classifications..."
+            print "\nSaving percentage of misclassifications..."
             test_success.append(Process.Results.count_results(test_results))
             Process.Perceptron.weight_vector = []
             print "Done."
 
         #Final plotting of all results.
-        Process.Results.graph_results(Process.Perceptron.iterations, Process.Perceptron.train_error_rate, test_success, "Graph of Train Success Rate (Blue) and Test Success Rate (Green)", "Number of Iterations", "Successfull classifcations (%)")
+        Process.Results.graph_results(Process.Perceptron.iterations, Process.Perceptron.train_error_rate, test_success, "Graph of Train Error Rate (Blue) and Test Error Rate (Green)", "Number of Iterations", "Misclassifcations (%)")
 
 
         #The time that the perceptron took is printed to the console.

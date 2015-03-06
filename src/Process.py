@@ -186,14 +186,14 @@ class Perceptron:
                 #If the plotFlag is true:
                 if(plotFlag):
                     #Append the train error rate and number of iterations to their corresponding arrays.
-                    Perceptron.train_error_rate.append(0)
+                    Perceptron.train_error_rate.append(100)
                     Perceptron.iterations.append(i)
             #If it is any other iteration:
             else:
                 #If the plotFlag is true
                 if(plotFlag):
                     #The missclassification counter is added into the train error rate list for plotting. 
-                    Perceptron.train_error_rate.append(((float(training_data_length) - float(misclassification_counter)) / float(training_data_length)) * float(100))
+                    Perceptron.train_error_rate.append(float(100) - ((float(training_data_length) - float(misclassification_counter)) / float(training_data_length)) * float(100))
                     #The loop counter is added into the iterations list for plotting a graph later.
                     Perceptron.iterations.append(i)
                 #The misclassification counter is reset for the coming iteration:
@@ -338,9 +338,9 @@ class Results:
                 neg_counter += 1
 
         #The percentage correct is calculated.
-        tot_correct_percentage = (float(pos_correct_counter + neg_correct_counter) * 100) / (float(pos_counter + neg_counter))
+        tot_incorrect_percentage = float(100) - ((float(pos_correct_counter + neg_correct_counter) * 100) / (float(pos_counter + neg_counter)))
         
-        return tot_correct_percentage
+        return tot_incorrect_percentage
 
     #Defining a method to print the results on a grap.
     @staticmethod
