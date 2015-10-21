@@ -16,7 +16,7 @@ if __name__ == "__main__":
     #Adding an argument for stable mode and an argument for defined mode.
     group.add_argument("-ts", "--train_until_stable", help="Train the perceptron until the weight vector remains stable. Enter the desired number of iterations for weight vector to remain unchanged after the command.", type=int)
     group.add_argument("-tf", "--train_for", help="Train the perceptron for a manually defined number of iterations. Enter the desired number of iterations after the command.", type=int)
-    group.add_argument("-p", "--plot", help="Plot the results of the perceptron test on the graph. Must be used in conjunction with a training mode.", type=int)
+    group.add_argument("-p", "--plot", help="Plot the results of the perceptron test on the graph. Enter the desired number of iterations after the command (uses train_for mode of training)", type=int)
 
 
 
